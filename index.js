@@ -10,7 +10,7 @@ const port = process.env.PORT || 5000;
 const app = express();
 
 const corsOptions = {
-  origin: ["http://localhost:5000"],
+  origin: ["http://localhost:5173", "http://localhost:5174"],
   credentials: true,
 };
 
@@ -37,7 +37,17 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // await client.connect();
+    const database = client.db("libraryLogDB");
+    const categoryCollection = database.collection("categories");
+    const bookCollection = database.collection("books");
 
+    // Get all categories
+    app.get('/categories', async(req, res) => {
+        const categories = await categoryCollection.find().toArray()
+        res.send(categories);
+    })
+    
+    
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log(
