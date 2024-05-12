@@ -57,6 +57,15 @@ async function run() {
       res.send(books);
     });
 
+    // Get single book data by id
+    app.get("/books/:id", async(req, res) => {
+      const query = { _id: new ObjectId(req.params.id) };
+      const book = await bookCollection.findOne(query);
+      res.send(book);
+    });
+
+
+
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log(
