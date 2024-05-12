@@ -42,12 +42,21 @@ async function run() {
     const bookCollection = database.collection("books");
 
     // Get all categories
-    app.get('/categories', async(req, res) => {
-        const categories = await categoryCollection.find().toArray()
-        res.send(categories);
-    })
-    
-    
+    app.get("/categories", async (req, res) => {
+      const categories = await categoryCollection.find().toArray();
+      res.send(categories);
+    });
+
+    // Get all books data
+    app.get("/books", async (req, res) => {
+      let query = {};
+      if (req.query.category) {
+        query = { category: req.query.category };
+      }
+      const books = await bookCollection.find(query).toArray();
+      res.send(books);
+    });
+
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log(
