@@ -47,6 +47,13 @@ async function run() {
       res.send(categories);
     });
 
+    // Add new book data
+    app.post('/books', async(req, res) => {
+      const book = req.body;
+      const result = await bookCollection.insertOne(book);
+      res.send(result)
+    })
+
     // Get all books data
     app.get("/books", async (req, res) => {
       let query = {};
