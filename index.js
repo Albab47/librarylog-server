@@ -48,11 +48,11 @@ async function run() {
     });
 
     // Add new book data
-    app.post('/books', async(req, res) => {
+    app.post("/books", async (req, res) => {
       const book = req.body;
       const result = await bookCollection.insertOne(book);
-      res.send(result)
-    })
+      res.send(result);
+    });
 
     // Get all books data
     app.get("/books", async (req, res) => {
@@ -65,13 +65,23 @@ async function run() {
     });
 
     // Get single book data by id
-    app.get("/books/:id", async(req, res) => {
+    app.get("/books/:id", async (req, res) => {
       const query = { _id: new ObjectId(req.params.id) };
       const book = await bookCollection.findOne(query);
       res.send(book);
     });
 
-
+    // Update book quantity value
+    app.patch("/books/:id", async (req, res) => {
+      const field = req.body;
+      console.log(field);
+      const query = { _id: new ObjectId(req.params.id) };
+      const result = await bookCollection.updateOne(query, {
+        $inc: { quantity: -1 },
+      });
+      console.log(result);
+      res.send(result)
+    });
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
