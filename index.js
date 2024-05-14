@@ -72,6 +72,24 @@ async function run() {
       res.send(book);
     });
 
+    // Get single book data by id
+    app.get("/books/:id", async (req, res) => {
+      const query = { _id: new ObjectId(req.params.id) };
+      const book = await bookCollection.findOne(query);
+      res.send(book);
+    });
+
+    // Get single book data by id
+    app.patch("/update-book/:id", async (req, res) => {
+      const updatedFields = req.body;
+      const query = { _id: new ObjectId(req.params.id) };
+      const updateDoc = {
+        $set: {...updatedFields}
+      }
+      const result = await bookCollection.updateOne(query, updateDoc);
+      res.send(result);
+    });
+
     // Update book quantity value
     app.patch("/books/:id", async (req, res) => {
       const data = req.body;
@@ -98,6 +116,7 @@ async function run() {
       res.send(books);
     });
 
+    // Remove book data on return
     app.delete("/borrowed-books/:id", async (req, res) => {    
       const query = { _id: new ObjectId(req.params.id)};
       console.log(query);
