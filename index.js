@@ -40,6 +40,7 @@ async function run() {
     const database = client.db("libraryLogDB");
     const categoryCollection = database.collection("categories");
     const bookCollection = database.collection("books");
+    const borrowedBookCollection = database.collection("borrowedBooks");
 
     // Get all categories
     app.get("/categories", async (req, res) => {
@@ -73,15 +74,40 @@ async function run() {
 
     // Update book quantity value
     app.patch("/books/:id", async (req, res) => {
-      const field = req.body;
-      console.log(field);
+      const data = req.body;
+      console.log(data);
       const query = { _id: new ObjectId(req.params.id) };
       const result = await bookCollection.updateOne(query, {
-        $inc: { quantity: -1 },
+        $inc: { ...data },
       });
+      console.log(result);
+      res.send(result);
+    });
+
+    // Add new borrowed book data
+    app.post("/borrowed-books", async (req, res) => {
+      const book = req.body;
+      const result = await borrowedBookCollection.insertOne(book);
+      res.send(result);
+    });
+
+    // Get all books data by user email
+    app.get("/borrowed-books/:email", async (req, res) => {
+      const query = { "borrower.email": req.params.email };
+      const books = await borrowedBookCollection.find(query).toArray();
+      res.send(books);
+    });
+
+    app.delete("/borrowed-books/:id", async (req, res) => {    
+      const query = { _id: new ObjectId(req.params.id)};
+      console.log(query);
+      const result = await borrowedBookCollection.deleteOne(query);
       console.log(result);
       res.send(result)
     });
+
+
+
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
