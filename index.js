@@ -127,14 +127,6 @@ async function run() {
       res.send(books);
     });
 
-    // Get top rated books data
-    app.get("/top-rated", async (req, res) => {
-      const query = { rating: { $gt: 4 } };
-      const options = { projection: { _id: 1, photo: 1, name: 1 } };
-      const books = await bookCollection.find(query, options).limit(4).toArray();
-      res.send(books);
-    });
-
     // Get single book data by id
     app.get("/books/:id", async (req, res) => {
       const query = { _id: new ObjectId(req.params.id) };
@@ -145,7 +137,7 @@ async function run() {
     // Update book data by id
     app.patch("/update-book/:id", verifyToken, async (req, res) => {
       const tokenEmail = req.user.email;
-      console.log(tokenEmail, req.query.email);
+      // console.log(tokenEmail, req.query.email);
       if (tokenEmail !== req.query.email) {
         return res.status(403).send({ message: "forbidden access" });
       }
@@ -187,9 +179,7 @@ async function run() {
     // Remove book data on return
     app.delete("/borrowed-books/:id", async (req, res) => {
       const query = { _id: new ObjectId(req.params.id) };
-      console.log(query);
       const result = await borrowedBookCollection.deleteOne(query);
-      console.log(result);
       res.send(result);
     });
 
@@ -197,12 +187,18 @@ async function run() {
     app.get("/borrowed-books/find/:id", async (req, res) => {
       const email = req.query.email;
       const id = req.params.id;
-      console.log(email, id);
       const query = { bookId: id, "borrower.email": email };
       const options = { projection: { _id: 0, bookId: 1, name: 1 } };
       const book = await borrowedBookCollection.findOne(query, options);
-      console.log(book);
       res.send(book);
+    });
+
+    // Get top rated books data
+    app.get("/top-rated", async (req, res) => {
+      const query = { rating: { $gt: 4 } };
+      const options = { projection: { _id: 1, photo: 1, name: 1 } };
+      const books = await bookCollection.find(query, options).limit(4).toArray();
+      res.send(books);
     });
 
     // Send a ping to confirm a successful connection
