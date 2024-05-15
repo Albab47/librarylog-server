@@ -12,7 +12,6 @@ const app = express();
 // Cors and Cookie options
 const corsOptions = {
   origin: [
-    "http://localhost:5173",
     "https://librarylogbd.web.app",
     "https://librarylogbd.firebaseapp.com",
   ],
@@ -197,7 +196,10 @@ async function run() {
     app.get("/top-rated", async (req, res) => {
       const query = { rating: { $gt: 4 } };
       const options = { projection: { _id: 1, photo: 1, name: 1 } };
-      const books = await bookCollection.find(query, options).limit(4).toArray();
+      const books = await bookCollection
+        .find(query, options)
+        .limit(4)
+        .toArray();
       res.send(books);
     });
 
