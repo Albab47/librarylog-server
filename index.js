@@ -9,11 +9,15 @@ const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster
 const port = process.env.PORT || 5000;
 const app = express();
 
+// Cors and Cookie options
 const corsOptions = {
-  origin: ["http://localhost:5173", "http://localhost:5174"],
+  origin: [
+    "http://localhost:5173",
+    "https://librarylogbd.web.app",
+    "https://librarylogbd.firebaseapp.com",
+  ],
   credentials: true,
 };
-
 const cookieOptions = {
   httpOnly: true,
   secure: process.env.NODE_ENV === "production",
@@ -91,8 +95,6 @@ async function run() {
         .send({ success: true });
     });
 
-
-
     // ------------ Service related API ------------------
 
     // Get all categories
@@ -104,7 +106,7 @@ async function run() {
     // Add new book data
     app.post("/books", verifyToken, async (req, res) => {
       const tokenEmail = req.user.email;
-      if(tokenEmail !== req.query.email) {
+      if (tokenEmail !== req.query.email) {
         return res.status(403).send({ message: "forbidden access" });
       }
       const book = req.body;
@@ -118,18 +120,11 @@ async function run() {
       if (req.query.category) {
         query = { category: req.query.category };
       }
-      if(req.query.filter) {
-        query = { quantity: {$gt: 0} }
+      if (req.query.filter) {
+        query = { quantity: { $gt: 0 } };
       }
       const books = await bookCollection.find(query).toArray();
       res.send(books);
-    });
-
-    // Get single book data by id
-    app.get("/books/:id", async (req, res) => {
-      const query = { _id: new ObjectId(req.params.id) };
-      const book = await bookCollection.findOne(query);
-      res.send(book);
     });
 
     // Get single book data by id
@@ -143,7 +138,7 @@ async function run() {
     app.patch("/update-book/:id", verifyToken, async (req, res) => {
       const tokenEmail = req.user.email;
       console.log(tokenEmail, req.query.email);
-      if(tokenEmail !== req.query.email) {
+      if (tokenEmail !== req.query.email) {
         return res.status(403).send({ message: "forbidden access" });
       }
       const updatedFields = req.body;
@@ -195,16 +190,15 @@ async function run() {
       const email = req.query.email;
       const id = req.params.id;
       console.log(email, id);
-      const query = { bookId: id, 'borrower.email': email};
-      const options = {projection: { _id: 0, bookId: 1, name: 1 },}
+      const query = { bookId: id, "borrower.email": email };
+      const options = { projection: { _id: 0, bookId: 1, name: 1 } };
       const book = await borrowedBookCollection.findOne(query, options);
       console.log(book);
       res.send(book);
     });
-    
 
     // Send a ping to confirm a successful connection
-    await client.db("admin").command({ ping: 1 });
+    // await client.db("admin").command({ ping: 1 });
     console.log(
       "Pinged your deployment. You successfully connected to MongoDB!"
     );
