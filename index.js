@@ -127,6 +127,14 @@ async function run() {
       res.send(books);
     });
 
+    // Get top rated books data
+    app.get("/top-rated", async (req, res) => {
+      const query = { rating: { $gt: 4 } };
+      const options = { projection: { _id: 1, photo: 1, name: 1 } };
+      const books = await bookCollection.find(query, options).limit(4).toArray();
+      res.send(books);
+    });
+
     // Get single book data by id
     app.get("/books/:id", async (req, res) => {
       const query = { _id: new ObjectId(req.params.id) };
